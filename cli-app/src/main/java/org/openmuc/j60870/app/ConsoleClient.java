@@ -49,7 +49,7 @@ public final class ConsoleClient {
     private static final StringCliParameter hostParam = new CliParameterBuilder("-h")
             .setDescription("The IP/domain address of the server you want to access.")
             .setMandatory()
-            .buildStringParameter("host");
+            .buildStringParameter("10.21.3.55","10.21.3.55");
     private static final IntCliParameter portParam = new CliParameterBuilder("-p")
             .setDescription("The port to connect to.")
             .buildIntParameter("port", 2404);
@@ -78,34 +78,42 @@ public final class ConsoleClient {
                 "A client/master application to access IEC 60870-5-104 servers/slaves.");
         cliParser.addParameters(cliParameters);
 
-        try {
-            cliParser.parseArguments(args);
-        } catch (CliParseException e1) {
-            System.err.println("Error parsing command line parameters: " + e1.getMessage());
-            log(cliParser.getUsageString());
-            System.exit(1);
-        }
+//        try {
+//            cliParser.parseArguments(args);
+//        } catch (CliParseException e1) {
+//            System.err.println("Error parsing command line parameters: " + e1.getMessage());
+//            log(cliParser.getUsageString());
+//            System.exit(1);
+//        }
 
         InetAddress address;
         try {
-            address = InetAddress.getByName(hostParam.getValue());
+//            address = InetAddress.getByName(hostParam.getName());
+            address = InetAddress.getByName("10.21.3.55");
         } catch (UnknownHostException e) {
             log("Unknown host: ", hostParam.getValue());
             return;
         }
+        InetAddress localAddress;
+        try {
+            localAddress = InetAddress.getByName("10.21.3.48");
 
-        ClientConnectionBuilder clientConnectionBuilder = new ClientConnectionBuilder(address)
+                ClientConnectionBuilder clientConnectionBuilder = new ClientConnectionBuilder(address)
+//                .setLocalAddress(localAddress, 2404)
                 .setMessageFragmentTimeout(messageFragmentTimeout.getValue())
                 .setConnectionTimeout(connectionTimeout.getValue())
                 .setPort(portParam.getValue())
                 .setConnectionEventListener(new ClientEventListener());
-
-        try {
-            connection = clientConnectionBuilder.build();
-        } catch (IOException e) {
-            log("Unable to connect to remote host: ", hostParam.getValue(), ".");
-            return;
+            try {
+                connection = clientConnectionBuilder.build();
+            } catch (IOException e) {
+                log("Unable to connect to remote host: ", hostParam.getValue(), ".");
+                return;
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
+
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -122,6 +130,7 @@ public final class ConsoleClient {
             try {
                 log("Send start DT. Try no. " + i);
                 connection.startDataTransfer();
+                connection.synchronizeClocks(commonAddrParam.getValue(), new IeTime56(System.currentTimeMillis()));
             } catch (InterruptedIOException e2) {
                 if (i == retries) {
                     log("Starting data transfer timed out. Closing connection. Because of no more retries.");
@@ -139,15 +148,20 @@ public final class ConsoleClient {
             connected = true;
         }
         log("successfully connected");
-
+//        try {
+//        connection.synchronizeClocks(commonAddrParam.getValue(), new IeTime56(System.currentTimeMillis()));
+//        } catch (Exception e) {
+//
+//        }
+//        actionProcessor.addAction(new Action(CLOCK_SYNC_ACTION_KEY, "synchronize clocks C_CS_NA_1"));
         actionProcessor.addAction(new Action(INTERROGATION_ACTION_KEY, "interrogation C_IC_NA_1"));
-        actionProcessor.addAction(new Action(COUNTER_INTERROGATION_ACTION_KEY, "counter interrogation C_CI_NA_1"));
-        actionProcessor.addAction(new Action(CLOCK_SYNC_ACTION_KEY, "synchronize clocks C_CS_NA_1"));
-        actionProcessor.addAction(new Action(SINGLE_COMMAND_SELECT, "single command select C_SC_NA_1"));
-        actionProcessor.addAction(new Action(SINGLE_COMMAND_EXECUTE, "single command execute C_SC_NA_1"));
-        actionProcessor.addAction(new Action(SEND_STOPDT, "STOPDT act"));
-        actionProcessor.addAction(new Action(SEND_STARTDT, "STARTDT act"));
+//        actionProcessor.addAction(new Action(COUNTER_INTERROGATION_ACTION_KEY, "counter interrogation C_CI_NA_1"));
 
+//        actionProcessor.addAction(new Action(SINGLE_COMMAND_SELECT, "single command select C_SC_NA_1"));
+//        actionProcessor.addAction(new Action(SINGLE_COMMAND_EXECUTE, "single command execute C_SC_NA_1"));
+//        actionProcessor.addAction(new Action(SEND_STOPDT, "STOPDT act"));
+//        actionProcessor.addAction(new Action(SEND_STARTDT, "STARTDT act"));
+//
         actionProcessor.start();
     }
 
@@ -201,6 +215,7 @@ public final class ConsoleClient {
                 switch (actionKey) {
                     case INTERROGATION_ACTION_KEY:
                         log("** Sending general interrogation command.");
+
                         connection.interrogation(commonAddrParam.getValue(), CauseOfTransmission.ACTIVATION,
                                 new IeQualifierOfInterrogation(20));
                         break;

@@ -38,7 +38,7 @@ public class SampleServer {
 
     private static final StringCliParameter bindAddressParam = new CliParameterBuilder("-a")
             .setDescription("The bind address.")
-            .buildStringParameter("address", "127.0.0.1");
+            .buildStringParameter("address", "0.0.0.0");
     private static final IntCliParameter portParam = new CliParameterBuilder("-p").setDescription("The port listen on.")
             .buildIntParameter("port", 2404);
     private static final IntCliParameter iaoLengthParam = new CliParameterBuilder("-iaol")
@@ -53,7 +53,7 @@ public class SampleServer {
     private int connectionIdCounter = 1;
 
     public static void main(String[] args) throws UnknownHostException {
-        cliParser(args);
+//        cliParser(args);
         new SampleServer().start();
     }
 
@@ -78,11 +78,11 @@ public class SampleServer {
     }
 
     public void start() throws UnknownHostException {
-        log("### Starting Server ###\n", "\nBind Address: ", bindAddressParam.getValue(), "\nPort:         ",
-                String.valueOf(portParam.getValue()), "\nIAO length:   ", String.valueOf(iaoLengthParam.getValue()),
-                "\nCA length:    ", String.valueOf(caLengthParam.getValue()), "\nCOT length:   ",
-                String.valueOf(cotLengthParam.getValue()), "\n");
-
+//        log("### Starting Server ###\n", "\nBind Address: ", bindAddressParam.getValue(), "\nPort:         ",
+//                String.valueOf(portParam.getValue()), "\nIAO length:   ", String.valueOf(iaoLengthParam.getValue()),
+//                "\nCA length:    ", String.valueOf(caLengthParam.getValue()), "\nCOT length:   ",
+//                String.valueOf(cotLengthParam.getValue()), "\n");
+        log("### Starting Server ###\n", "\nBind Address: ", bindAddressParam.getValue());
         Builder builder = Server.builder();
         InetAddress bindAddress = InetAddress.getByName(bindAddressParam.getValue());
         builder.setBindAddr(bindAddress)

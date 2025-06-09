@@ -59,21 +59,21 @@ public class ActionProcessor {
         actionMap.put(helpAction.getKey(), helpAction);
         actionMap.put(quitAction.getKey(), quitAction);
 
-        printHelp();
+//        printHelp();
 
         try {
 
-            String actionKey;
+            String actionKey = "i";
             while (true) {
-                System.out.println("\n** Enter action key: ");
+//                System.out.println("\n** Enter action key: ");
 
-                try {
-                    actionKey = reader.readLine();
-                } catch (IOException e) {
-                    System.err.printf("%s. Application is being shut down.%n", e.getMessage());
-                    exit(2);
-                    return;
-                }
+//                try {
+//                    actionKey = reader.readLine();
+//                } catch (IOException e) {
+//                    System.err.printf("%s. Application is being shut down.%n", e.getMessage());
+//                    exit(2);
+//                    return;
+//                }
 
                 if (actionMap.get(actionKey) == null) {
                     System.err.println("Illegal action key.\n");
